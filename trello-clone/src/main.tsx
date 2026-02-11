@@ -8,6 +8,7 @@ import AuthLayout from "./authentication/auth-layout/AuthLayout.tsx";
 import Login from "./authentication/login/Login.tsx";
 import Home from "./home/home.tsx";
 import SignUp from "./authentication/signup/SignUp.tsx";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

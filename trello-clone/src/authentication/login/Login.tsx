@@ -1,4 +1,4 @@
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import {
   Alert,
   Button,
@@ -57,8 +57,6 @@ async function loginAction(
 
   const responseData = await response.json();
 
-  console.log("::: responseData", responseData);
-
   errors.email = responseData.message?.email;
   errors.password = responseData.message?.password;
 
@@ -84,10 +82,18 @@ function Login() {
     message: "",
     errors: {},
     fields: {},
-    variant: "success",
+    variant: "danger",
   });
 
   const navigator = useNavigate();
+
+  useEffect(() => {
+    if (state.variant === "success") {
+      navigator("/home", {
+        replace: true,
+      });
+    }
+  });
 
   const goToSignUp = () => {
     navigator("/auth/signup");

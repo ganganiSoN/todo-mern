@@ -1,14 +1,16 @@
 import express from "express";
-import db from "../db/connection.js";
+import { getDb } from "../db/connection.ts";
 import { compare, hash } from "bcryptjs";
 
 const router = express.Router();
-const collection = db.collection("users");
 
 router.post("/", async (req, res) => {
   // collection
   console.log("::: req", req.body);
   try {
+    const db = getDb();
+    const collection = db.collection("users");
+
     let newDocument = {
       name: req.body.name,
       email: req.body.email,
@@ -48,8 +50,9 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  console.log(":: req", req.body);
   try {
+    const db = getDb();
+    const collection = db.collection("users");
     const { email, password } = req.body;
 
     const user = await collection.findOne({ email });
