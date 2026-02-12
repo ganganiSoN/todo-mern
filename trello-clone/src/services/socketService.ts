@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import type { IItem } from "./todoService";
+import type { ITaskItem } from "./todoTaskService";
 
 class SocketService {
   private socket: Socket | null = null;
@@ -45,6 +46,31 @@ class SocketService {
 
   offDelete(handler: (tod: IItem) => void) {
     this.socket?.off("deleteToDo", handler);
+  }
+
+  //////////////////////// todo Task
+  onAddTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.on("addNewToDoTask", handler);
+  }
+
+  onUpdateTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.on("updateToDoTask", handler);
+  }
+
+  onDeleteTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.on("deleteToDoTask", handler);
+  }
+
+  offAddTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.off("addNewToDoTask", handler);
+  }
+
+  offUpdateTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.off("updateToDoTask", handler);
+  }
+
+  offDeleteTodoTask(handler: (todoTask: ITaskItem) => void) {
+    this.socket?.off("deleteToDoTask", handler);
   }
 
   disconnect() {

@@ -7,6 +7,7 @@ import {
   type SetStateAction,
 } from "react";
 import type { IItem } from "../services/todoService";
+import ToDoList from "../components/todo-list/ToDoList";
 
 type TodoSelectionContextType = {
   todoSelection: IItem | undefined;
@@ -35,7 +36,9 @@ function Home() {
             <Col sm={3}>
               <SideList></SideList>
             </Col>
-            <Col sm={9}>Column 2</Col>
+            <Col sm={9}>
+              <ToDoList></ToDoList>
+            </Col>
           </Row>
         </Container>
       </TodoSelection.Provider>

@@ -8,6 +8,8 @@ import todoRouter from "./routes/todo.ts";
 import { createServer } from "http";
 import { initializeSocket } from "./socket/index.js";
 import { connectDB } from "./db/connection.ts";
+import { initCollections } from "./db/initCollections.ts";
+import todoTaskRoute from "./routes/todo-task.ts";
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,7 +20,9 @@ app.use(express.json());
 (async () => {
   try {
     const server = createServer(app);
-    await connectDB();
+    const db = await connectDB();
+
+    await initCollections(db);
 
     const io = initializeSocket(server);
 
@@ -29,6 +33,7 @@ app.use(express.json());
 
     app.use("/auth", userRouter);
     app.use("/todo", todoRouter);
+    app.use("/todo-task", todoTaskRoute);
 
     server.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);

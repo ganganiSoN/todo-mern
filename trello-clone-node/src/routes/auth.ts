@@ -5,8 +5,6 @@ import { compare, hash } from "bcryptjs";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  // collection
-  console.log("::: req", req.body);
   try {
     const db = getDb();
     const collection = db.collection("users");
@@ -17,15 +15,9 @@ router.post("/", async (req, res) => {
       password: req.body.password,
     };
 
-    console.log("::: newDocument", newDocument);
-
     const isFind = await collection.findOne({ email: newDocument.email });
 
-    console.log("::: isFind", isFind);
-
     if (isFind) {
-      console.log("::: in if");
-      // res.status(422).send("Email Already");
       return res.status(422).json({
         status: "fail",
         message: {
@@ -33,11 +25,9 @@ router.post("/", async (req, res) => {
         },
       });
     } else {
-      console.log("::: in else");
       newDocument.password = await hash(newDocument.password, 10);
       const result = await collection.insertOne(newDocument);
 
-      // res.status(402).send("Email Already");
       return res.status(200).json({
         status: "success",
         data: result,
@@ -60,7 +50,6 @@ router.post("/login", async (req, res) => {
     console.log(":: user", user);
 
     if (!user) {
-      // return res.status(400).send("Invalid Credential");
       return res.status(400).json({
         status: "fail",
         message: {
@@ -77,11 +66,7 @@ router.post("/login", async (req, res) => {
         message: {
           commonMessage: "Invalid Credential",
         },
-        // {
-        //   email: "Email Already Exist",
-        // },
       });
-      // return res.status(400).send("Invalid Credential");
     }
 
     return res.status(200).json({
@@ -90,10 +75,8 @@ router.post("/login", async (req, res) => {
         commonMessage: "Login Success",
       },
     });
-    // return res.status(200).send("Login Success");
   } catch (error) {
-    console.log("::: error", error);
-    res.status(500).send("Server error", error);
+    res.status(500).send(error);
   }
 });
 

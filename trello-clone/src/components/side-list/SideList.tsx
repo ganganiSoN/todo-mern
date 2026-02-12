@@ -1,30 +1,21 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  FormControl,
-  ListGroup,
-  ListGroupItem,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-} from "react-bootstrap";
+import { Button, ListGroup, ListGroupItem } from "react-bootstrap";
 import ConfirmationDialog from "../confirmationDialog/ConfirmationDialog";
 import { useTodoContext } from "../../home/context";
 import { socketService } from "../../services/socketService";
 import { todoApiService, type IItem } from "../../services/todoService";
+import CreateDialog from "../createDialog/CreateDialog";
 
 function SideList() {
   const { setTodoSelection } = useTodoContext();
 
   const [itemList, setItemList] = useState<IItem[]>([]);
-  const [showModal, setShowModal] = useState<boolean>(false);
   const [name, setName] = useState("");
   const [error, setError] = useState<string>("");
   const [editItem, setEditItem] = useState<IItem | null>(null);
   const [deletedId, setDeletedId] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
+  const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
 
   const fetchRecords = async () => {
     try {
@@ -102,14 +93,14 @@ function SideList() {
     setEditItem(item ?? null);
     setName(item?.name ?? "");
     setError("");
-    setShowModal(true);
+    setShowCreateDialog(true);
   };
 
   const handleClose = () => {
     setEditItem(null);
     setName("");
     setError("");
-    setShowModal(false);
+    setShowCreateDialog(false);
   };
 
   return (
@@ -150,35 +141,24 @@ function SideList() {
         ))}
       </ListGroup>
 
-      <Button variant="secondary" onClick={() => handleOpen()} className="mt-3">
+      <Button
+        variant="secondary"
+        onClick={() => setShowCreateDialog(true)}
+        className="mt-3"
+      >
         Add New
       </Button>
 
-      <Modal show={showModal} onHide={handleClose}>
-        <ModalHeader closeButton>
-          <ModalTitle>{editItem ? "Edit Item" : "Add New Item"}</ModalTitle>
-        </ModalHeader>
-        <ModalBody>
-          <FormControl
-            required
-            className="form-container"
-            placeholder="Item Name"
-            name="itemName"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            isInvalid={!!error}
-          ></FormControl>
-          {error && <p className="text-danger mt-2">{error}</p>}
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            {editItem ? "Update" : "Add New"}
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <CreateDialog
+        key={"create-dialog"}
+        inputValue={name}
+        updateInputValue={setName}
+        show={showCreateDialog}
+        title="Create ToDo"
+        error={error}
+        onSave={() => handleSubmit()}
+        onCancel={() => setShowCreateDialog(false)}
+      ></CreateDialog>
 
       <ConfirmationDialog
         key={"delete-confirm-dialog"}

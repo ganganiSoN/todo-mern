@@ -3,14 +3,15 @@ import { getDb } from "../db/connection.ts";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();
-// const db = getDb();
-// const collection = db.collection("tasks");
+
+function getCollection() {
+  const db = getDb();
+  return db.collection("todo");
+}
 
 router.get("/", async (req, res) => {
   try {
-    const db = getDb();
-    const collection = db.collection("tasks");
-    const records = await collection.find().toArray();
+    const records = await getCollection().find().toArray();
 
     return res.status(200).json({
       status: "success",
@@ -23,14 +24,12 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/add-new", async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
-    const db = getDb();
-    const collection = db.collection("tasks");
     const document = req.body;
 
     if (document.name.trim() !== "") {
-      const isFind = await collection.findOne(document);
+      const isFind = await getCollection().findOne(document);
 
       if (isFind) {
         return res.status(422).json({
@@ -38,7 +37,7 @@ router.post("/add-new", async (req, res) => {
           message: "Duplicate Name Found.",
         });
       } else {
-        const response = await collection.insertOne(document);
+        const response = await getCollection().insertOne(document);
 
         document._id = response.insertedId;
 
@@ -61,16 +60,14 @@ router.post("/add-new", async (req, res) => {
 
 router.put("/update", async (req, res) => {
   try {
-    const db = getDb();
-    const collection = db.collection("tasks");
     const document = req.body;
 
-    const isFind = await collection.findOne({
+    const isFind = await getCollection().findOne({
       _id: new ObjectId(document._id),
     });
 
     if (isFind) {
-      const response = await collection.updateOne(
+      const response = await getCollection().updateOne(
         { _id: new ObjectId(document._id) },
         { $set: { name: document.name } },
       );
@@ -97,11 +94,11 @@ router.put("/update", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const db = getDb();
-    const collection = db.collection("tasks");
     const id = req.params.id;
 
-    const response = collection.findOneAndDelete({ _id: new ObjectId(id) });
+    const response = getCollection().findOneAndDelete({
+      _id: new ObjectId(id),
+    });
 
     console.log(":: response", response);
 
