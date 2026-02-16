@@ -1,13 +1,13 @@
 import { Col, Container, Row } from "react-bootstrap";
-import SideList from "../components/side-list/SideList";
 import {
   createContext,
   useState,
   type Dispatch,
   type SetStateAction,
 } from "react";
-import type { IItem } from "../services/todoService";
-import ToDoList from "../components/todo-list/ToDoList";
+import type { IItem } from "../../services/todoService";
+import SideList from "../../components/side-list/SideList";
+import ToDoList from "../../features/todo-list/todoListPage";
 
 type TodoSelectionContextType = {
   todoSelection: IItem | undefined;

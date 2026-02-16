@@ -27,9 +27,10 @@ export const initCollections = async (db: Db) => {
       validator: {
         $jsonSchema: {
           bsonType: "object",
-          required: ["name", "todoId"],
+          required: ["name", "todoId", "favourite"],
           properties: {
             name: { bsonType: "string" },
+            favourite: { bsonType: "bool" },
             todoId: { bsonType: "objectId" },
             createdAt: { bsonType: "date" },
             updatedAt: { bsonType: "date" },

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, ListGroup, ListGroupItem } from "react-bootstrap";
-import ConfirmationDialog from "../confirmationDialog/ConfirmationDialog";
-import { useTodoContext } from "../../home/context";
-import { socketService } from "../../services/socketService";
+import ConfirmationDialog from "../../shared/components/confirmationDialog/ConfirmationDialog";
+import { socketService } from "../../shared/services/socketService";
 import { todoApiService, type IItem } from "../../services/todoService";
-import CreateDialog from "../createDialog/CreateDialog";
+import CreateDialog from "../../shared/components/createDialog/CreateDialog";
+import { useTodoContext } from "../../features/todo-list/todoList.context";
 
 function SideList() {
   const { setTodoSelection } = useTodoContext();
@@ -20,7 +20,6 @@ function SideList() {
   const fetchRecords = async () => {
     try {
       const items = await todoApiService.getAll();
-
       setItemList(items);
     } catch (error: any) {
       console.error(error.message);
@@ -28,8 +27,9 @@ function SideList() {
   };
 
   useEffect(() => {
-    const socket = socketService.connect();
+    socketService.connect();
 
+    const socket = socketService.getSocket();
     if (!socket) return;
 
     const handleAdd = (todo: IItem) => {

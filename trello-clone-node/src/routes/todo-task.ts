@@ -45,12 +45,10 @@ router.post("/create", async (req, res) => {
       console.log(":::: document name if");
       const isFind = await getCollection().findOne({ name: document.name });
 
-      console.log(":::: is find");
-
       if (isFind) {
         res.status(422).json({
           status: "Failed",
-          message: "Duplicate Nae Not Found",
+          message: "Duplicate Name Not Found",
         });
         return;
       }
@@ -58,6 +56,7 @@ router.post("/create", async (req, res) => {
       const documentReq = {
         name: document.name,
         todoId: new ObjectId(document.todoId),
+        favourite: Boolean(document.favourite ?? false),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -66,7 +65,7 @@ router.post("/create", async (req, res) => {
 
       document._id = response.insertedId;
 
-      req.io.emit("addNewToDoTask", document);
+      req.io.emit("todoTask:created", document);
 
       return res.status(200).json({
         status: "Success",
@@ -79,8 +78,8 @@ router.post("/create", async (req, res) => {
         message: "Name Can not be empty",
       });
     }
-  } catch (error) {
-    console.log(":: error", error);
+  } catch (error: any) {
+    console.log(JSON.stringify(error.errInfo, null, 2));
     return res.status(500).json({
       status: "failed",
       message: "Server Error",
@@ -90,6 +89,37 @@ router.post("/create", async (req, res) => {
 
 router.put("/update", async (req, res) => {
   try {
+    const document = req.body;
+    const isFind = await getCollection().findOne({
+      _id: new ObjectId(document._id),
+    });
+
+    if (!isFind) {
+      return res.status(422).json({
+        status: "Failed",
+        message: "Record not Found",
+      });
+    }
+
+    await getCollection().findOneAndUpdate(
+      {
+        _id: new ObjectId(document._id),
+      },
+      {
+        $set: {
+          name: document.name,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    req.io.emit("todoTask:updated", document);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Record updated",
+      document,
+    });
   } catch (error) {
     console.log(":: error", error);
     return res.status(500).json({
@@ -99,8 +129,67 @@ router.put("/update", async (req, res) => {
   }
 });
 
-router.delete("/delete", async (req, res) => {
+router.put("/favourite", async (req, res) => {
   try {
+    const document = req.body;
+
+    const isFind = await getCollection().findOne({
+      _id: new ObjectId(document._id),
+    });
+
+    if (isFind) {
+      console.log(":::: doc find");
+
+      const response = await getCollection().findOneAndUpdate(
+        { _id: new ObjectId(document._id) },
+        {
+          $set: {
+            favourite: document.favourite,
+            updatedAt: new Date(),
+          },
+        },
+        {
+          returnDocument: "after",
+        },
+      );
+
+      console.log("::: task update");
+
+      req.io.emit("todoTask:updated", response);
+
+      console.log("::: task update emit");
+
+      return res.status(200).json({
+        status: "success",
+        message: "Record updated",
+        response,
+      });
+    } else {
+      return res.status(422).json({
+        status: "Failed",
+        message: "Record not found",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: "Failed",
+      message: "Server Error",
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await getCollection().findOneAndDelete({ _id: new ObjectId(id) });
+
+    req.io.emit("todoTask:deleted", { _id: id });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Remove Document",
+    });
   } catch (error) {
     console.log(":: error", error);
     return res.status(500).json({

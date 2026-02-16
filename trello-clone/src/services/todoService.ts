@@ -1,4 +1,4 @@
-import { handleApiResponse } from "./types";
+import { handleApiResponse } from "../shared/lib/types";
 
 export interface IItem {
   _id: string;

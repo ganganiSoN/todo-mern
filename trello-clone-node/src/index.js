@@ -9,6 +9,7 @@ import { createServer } from "http";
 import { initializeSocket } from "./socket/index.js";
 import { connectDB } from "./db/connection.ts";
 import { initCollections } from "./db/initCollections.ts";
+import { runMigration } from "./db/runMigration.ts";
 import todoTaskRoute from "./routes/todo-task.ts";
 
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use(express.json());
     const db = await connectDB();
 
     await initCollections(db);
+    await runMigration(db);
 
     const io = initializeSocket(server);
 

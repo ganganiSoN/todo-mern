@@ -7,12 +7,15 @@ export type ApiResponse<T> = {
 export async function handleApiResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const text = await res.text();
+    let message = "API Error";
     try {
       const json = JSON.parse(text);
-      throw new Error(json.message || "API Error");
+      message = json.message || message;
     } catch (error) {
-      throw new Error(text || "API Error");
+      message = text || message;
     }
+
+    throw new Error(message);
   }
 
   const json = (await res.json()) as ApiResponse<T>;
